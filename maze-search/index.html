@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="幅優先探索と深さ優先探索が同じ迷路を解く様子を自動で比較するデモ"
+    />
+    <title>迷路探索ラボ | BFS・DFS 自動デモ</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="algorithm-switch" role="group" aria-label="探索アルゴリズム">
+          <button class="algorithm-button active" type="button" data-algorithm="bfs" aria-pressed="true">
+            <span>BFS</span>
+            <small>幅優先探索</small>
+          </button>
+          <button class="algorithm-button" type="button" data-algorithm="dfs" aria-pressed="false">
+            <span>DFS</span>
+            <small>深さ優先探索</small>
+          </button>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <section class="maze-section" aria-labelledby="maze-heading">
+          <div class="section-heading">
+            <div>
+              <h1 id="maze-heading">幅優先探索：近いマスから順に調べる</h1>
+            </div>
+            <div class="status searching" id="status" role="status" aria-live="polite">
+              <span class="status-dot" aria-hidden="true"></span>
+              <span id="status-text">まもなく探索を始めます</span>
+            </div>
+          </div>
+
+          <div class="maze-frame" id="maze-frame">
+            <canvas id="maze" aria-label="幅優先探索と深さ優先探索が自動で解く迷路"></canvas>
+            <div class="current-label" id="current-label" hidden>いま探索中！</div>
+          </div>
+
+          <div class="legend" aria-label="迷路の色の凡例">
+            <span><i class="legend-swatch start"></i>スタート</span>
+            <span><i class="legend-swatch goal"></i>ゴール</span>
+            <span><i class="legend-swatch frontier"></i>探索候補（赤いほど次）</span>
+            <span><i class="legend-swatch visited"></i>探索済み</span>
+            <span><i class="legend-swatch current"></i>現在地</span>
+            <span><i class="legend-swatch path"></i>発見した経路</span>
+          </div>
+        </section>
+
+        <aside class="control-panel" aria-label="探索の表示と設定">
+          <section class="control-section metrics" aria-label="探索状況">
+            <div>
+              <span>探索したマス</span>
+              <strong id="visited-count">0</strong>
+            </div>
+            <div>
+              <span>探索候補</span>
+              <strong id="frontier-count">0</strong>
+            </div>
+            <div>
+              <span>経路の長さ</span>
+              <strong id="path-count">—</strong>
+            </div>
+          </section>
+
+          <section class="control-section frontier-section">
+            <div class="control-heading">
+              <div>
+                <span id="frontier-title">キューの中身</span>
+                <small id="frontier-subtitle">追加した順に探索</small>
+              </div>
+            </div>
+
+            <div class="frontier-visual" aria-label="探索候補の順番">
+              <div class="frontier-caption first">
+                <strong>赤・先に探索</strong>
+                <strong class="white-label">白・後で探索</strong>
+              </div>
+              <div class="frontier-track-wrap">
+                <div class="frontier-pointer" aria-hidden="true">▶</div>
+                <div class="frontier-track" id="frontier-track">
+                  <span class="frontier-empty">候補を準備中</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="control-section speed-section">
+            <label class="speed-control" for="speed">
+              <span>探索スピード</span>
+              <strong id="speed-label">ふつう</strong>
+              <input id="speed" type="range" min="1" max="5" value="3" />
+            </label>
+          </section>
+
+          <section class="control-section maze-action">
+            <button id="new-maze" class="button" type="button">新しい迷路にする</button>
+            <small>BFSから自動で再開します</small>
+          </section>
+
+          <p class="algorithm-note" id="algorithm-note">
+            BFSは近い場所を一段ずつ調べるので、見つけた経路は必ず最短になります。
+          </p>
+
+        </aside>
+      </main>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

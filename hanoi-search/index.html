@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="ハノイの塔を探索木と一緒に可視化するBFS・DFSデモ" />
+    <title>ハノイの塔 | BFS・DFS探索</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="topbar">
+        <div class="controls">
+          <label for="speed"><span>速度</span><input id="speed" type="range" min="1" max="5" value="3" /><strong id="speed-label">ふつう</strong></label>
+          <button id="restart" type="button">最初から</button>
+        </div>
+      </header>
+
+      <div class="workspace">
+        <section class="tower-panel" aria-labelledby="algorithm-title">
+          <header class="section-heading">
+            <div>
+              <h1 id="algorithm-title" class="sr-only">BFS <span>幅優先探索</span></h1>
+              <div class="algorithm-switch" role="group" aria-label="探索アルゴリズム">
+                <button class="algorithm-button active" type="button" data-algorithm="bfs" aria-pressed="true"><strong>BFS</strong><span>幅優先探索</span></button>
+                <button class="algorithm-button" type="button" data-algorithm="dfs" aria-pressed="false"><strong>DFS</strong><span>深さ優先探索</span></button>
+              </div>
+              <p id="algorithm-copy">浅い手順から順に調べる</p>
+            </div>
+          </header>
+
+          <div class="tower-stage">
+            <span class="goal-caption">目標：すべて右へ</span>
+            <svg id="tower" viewBox="0 0 640 390" role="img" aria-labelledby="tower-title tower-desc">
+              <title id="tower-title">現在探索しているハノイの塔</title>
+              <desc id="tower-desc">ランダムに配置された4枚の円盤を右の柱へ集めます</desc>
+              <g class="tower-structure" aria-hidden="true">
+                <rect class="base" x="42" y="340" width="556" height="14" rx="7"></rect>
+                <rect class="peg" x="132" y="88" width="10" height="258" rx="5"></rect>
+                <rect class="peg" x="315" y="88" width="10" height="258" rx="5"></rect>
+                <rect class="peg" x="498" y="88" width="10" height="258" rx="5"></rect>
+                <text x="137" y="378">左</text><text x="320" y="378">中央</text><text x="503" y="378">右</text>
+              </g>
+              <g id="disks" aria-hidden="true"></g>
+            </svg>
+            <div class="move-caption" id="move-caption" aria-live="polite">開始状態</div>
+          </div>
+
+          <div class="solution-summary" aria-label="解答と再生">
+            <div class="solution-state">
+              <div class="status" id="status" role="status" aria-live="polite"><i aria-hidden="true"></i><span>探索中</span></div>
+              <span class="solution-length">解答 <strong id="path-count">—</strong></span>
+            </div>
+            <div class="result-actions" id="result-actions" hidden>
+              <button id="view-solution" type="button">解答経路を見る</button>
+              <span id="countdown-label"><strong id="countdown">5</strong>秒後に次へ</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="tree-panel" aria-labelledby="tree-title">
+          <header class="section-heading tree-heading">
+            <div>
+              <h2 id="tree-title">探索ツリー</h2>
+              <p>一つひとつの小さな塔が、試す候補です</p>
+            </div>
+          </header>
+
+          <div class="metrics" aria-label="探索ツリーの状況">
+            <span>探索済み <strong id="visited-count">0</strong></span>
+            <span>待機中 <strong id="frontier-count">1</strong></span>
+            <span>深さ <strong id="depth-count">0</strong></span>
+          </div>
+
+          <div class="tree-stage">
+            <svg id="tree" viewBox="-450 -300 900 600" role="img" aria-labelledby="tree-svg-title tree-svg-desc">
+              <title id="tree-svg-title">ハノイの塔の探索ツリー</title>
+              <desc id="tree-svg-desc">発見された状態が親の右側へ枝分かれし、カメラが現在地へ緩やかに追従します</desc>
+              <g id="tree-edges"></g>
+              <g id="tree-nodes"></g>
+            </svg>
+          </div>
+
+          <div class="color-guide" aria-label="探索ツリーの色の説明">
+            <div class="frontier-key" aria-label="探索候補は赤を先に、白を後で探索します">
+              <span>赤・先に探索</span><span>白・後で探索</span><i aria-hidden="true"></i>
+            </div>
+            <div class="tree-legend">
+              <span><i class="current"></i>現在地</span>
+              <span><i class="visited"></i>探索済み</span>
+              <span><i class="path"></i>解答経路</span>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <script src="../search-demo/bridge.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>

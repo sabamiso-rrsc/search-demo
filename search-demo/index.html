@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="迷路とハノイの塔で、幅優先探索・深さ優先探索の動きを見比べる自動デモ" />
+    <title>探索アルゴリズム | 迷路・ハノイの塔</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <nav aria-label="デモの切り替え">
+        <button type="button" data-demo="maze" aria-pressed="true" aria-controls="demo-stage">迷路</button>
+        <button type="button" data-demo="hanoi" aria-pressed="false" aria-controls="demo-stage">ハノイの塔</button>
+      </nav>
+      <label class="auto-switch" title="迷路1回、ハノイのBFS・DFSが終わるごとに切り替えます">
+        <input id="auto-switch" type="checkbox" checked />
+        <span>自動切替</span>
+      </label>
+    </header>
+    <main id="demo-stage" aria-label="探索デモ"></main>
+    <noscript>JavaScriptを有効にしてください。<a href="../maze-search/compare.html">迷路</a>・<a href="../hanoi-search/index.html">ハノイの塔</a></noscript>
+  </body>
+</html>
