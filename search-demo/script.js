@@ -29,6 +29,7 @@ function showDemo(name) {
   frame.title = demos[name].title;
   frame.src = `${demos[name].url}?embedded=1`;
   frame.addEventListener('load', configureDemo);
+  frame.addEventListener('load', watchFrameInput);
   stage.replaceChildren(frame);
   // Hash links allow either demo to be opened directly, including from a local file.
   if (location.hash !== `#${name}`) location.hash = name;
@@ -47,6 +48,50 @@ window.addEventListener('message', event => {
     else frame.contentWindow.postMessage({ type: 'search-demo:continue' }, targetOrigin);
   }
 });
+
+const fullscreenButton = document.querySelector('#fullscreen');
+const fullscreenSupported = document.fullscreenEnabled || document.webkitFullscreenEnabled;
+// Browsers only allow fullscreen after a user gesture, so the first tap or key press anywhere enters it.
+let enterOnFirstInput = true;
+function isFullscreen() { return Boolean(document.fullscreenElement || document.webkitFullscreenElement); }
+function setFullscreen(on) {
+  if (!fullscreenSupported || on === isFullscreen()) return;
+  const root = document.documentElement;
+  const request = on
+    ? (root.requestFullscreen || root.webkitRequestFullscreen).call(root)
+    : (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+  Promise.resolve(request).catch(() => {});
+}
+function onUserInput(event) {
+  if (event.type === 'keydown' && !event.metaKey && !event.ctrlKey && !event.altKey && !event.repeat && event.key.toLowerCase() === 'f') {
+    enterOnFirstInput = false;
+    setFullscreen(!isFullscreen());
+    return;
+  }
+  if (!enterOnFirstInput || fullscreenButton.contains(event.target)) return;
+  enterOnFirstInput = false;
+  setFullscreen(true);
+}
+function watchFrameInput() {
+  // The demos are same-origin, so taps inside the frame can start fullscreen too (not possible from file:).
+  try {
+    frame.contentWindow.addEventListener('pointerdown', onUserInput);
+    frame.contentWindow.addEventListener('keydown', onUserInput);
+  } catch {}
+}
+function syncFullscreenButton() {
+  const on = isFullscreen();
+  fullscreenButton.firstChild.textContent = on ? '全画面を終了 ' : '全画面 ';
+  fullscreenButton.setAttribute('aria-pressed', String(on));
+  fullscreenButton.setAttribute('aria-label', on ? '全画面表示を終了' : '全画面表示');
+}
+fullscreenButton.hidden = !fullscreenSupported;
+fullscreenButton.addEventListener('click', () => { enterOnFirstInput = false; setFullscreen(!isFullscreen()); });
+document.addEventListener('fullscreenchange', syncFullscreenButton);
+document.addEventListener('webkitfullscreenchange', syncFullscreenButton);
+window.addEventListener('pointerdown', onUserInput);
+window.addEventListener('keydown', onUserInput);
+setFullscreen(true);
 
 buttons.forEach(button => button.addEventListener('click', () => showDemo(button.dataset.demo)));
 window.addEventListener('hashchange', () => showDemo(location.hash.slice(1)));

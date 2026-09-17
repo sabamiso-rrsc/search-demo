@@ -21,7 +21,10 @@ function setup(protocol = 'http:') {
   child.postMessage = data => queue.push(() => childListeners.message({ data, origin: eventOrigin, source: host }));
   const buttons = ['maze', 'hanoi'].map(name => ({ dataset: { demo: name }, setAttribute() {}, addEventListener() {} }));
   const hostDocument = {
-    querySelector: selector => selector === '#auto-switch' ? checkbox : { replaceChildren: frame => { activeFrame = frame; } },
+    querySelector: selector => selector === '#auto-switch' ? checkbox
+      : selector === '#fullscreen' ? { addEventListener() {}, setAttribute() {}, firstChild: {} }
+      : { replaceChildren: frame => { activeFrame = frame; } },
+    addEventListener() {},
     querySelectorAll: () => buttons,
     createElement: () => ({ contentWindow: child, addEventListener() {} }),
   };

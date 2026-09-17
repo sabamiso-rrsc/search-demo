@@ -34,10 +34,16 @@ nav button[aria-pressed="true"] { color: #03101b; background: #29d9ff; }
 button:focus-visible, input:focus-visible { outline: 3px solid #f5fbff; outline-offset: 3px; }
 .auto-switch { display: flex; align-items: center; gap: 8px; color: #a8bfd3; font-size: 0.8rem; cursor: pointer; white-space: nowrap; min-height: 42px; }
 .auto-switch input { width: 18px; height: 18px; margin: 0; accent-color: #29d9ff; cursor: pointer; }
+#fullscreen { margin-left: auto; min-height: 42px; padding: 9px 16px; border: 1px solid rgba(200, 224, 245, 0.22); border-radius: 7px; background: transparent; color: #a8bfd3; font-weight: 700; font-size: 0.85rem; white-space: nowrap; }
+#fullscreen:hover { color: #f5fbff; background: #10253a; }
+#fullscreen[hidden] { display: none; }
+kbd { margin-left: 5px; padding: 1px 4px; border-radius: 3px; background: #273a4d; font: 0.65rem ui-monospace, monospace; }
 #demo-stage { flex: 1; min-height: 0; }
 iframe { display: block; width: 100%; height: 100%; border: 0; background: #030a13; }
 @media (max-width: 520px) {
   .site-header { padding-inline: 13px; gap: 8px; }
   nav button { padding-inline: 14px; font-size: 0.9rem; }
   .auto-switch { gap: 6px; font-size: 0.72rem; }
+  #fullscreen { padding-inline: 10px; font-size: 0.75rem; }
+  #fullscreen kbd { display: none; }
 }
