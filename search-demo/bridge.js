@@ -1,4 +1,19 @@
 // A small message interface shared by the two standalone demos and their host.
+window.searchDemoHint = (x, y) => {
+  const root = document.documentElement;
+  root.classList.remove('tap-hint');
+  void root.offsetWidth; // Restart the pulse animation.
+  root.classList.add('tap-hint');
+  setTimeout(() => root.classList.remove('tap-hint'), 1400);
+  const toast = document.createElement('div');
+  toast.className = 'tap-toast';
+  toast.textContent = 'ここは見るだけ ・ オレンジのボタンで操作できます';
+  toast.style.left = `${Math.min(Math.max(x, 180), innerWidth - 180)}px`;
+  toast.style.top = `${Math.max(y, 60)}px`;
+  document.body.append(toast);
+  setTimeout(() => toast.remove(), 1800);
+};
+
 (() => {
   const embedded = window.parent !== window && new URLSearchParams(location.search).has('embedded');
   let continueRound = null;
@@ -12,6 +27,15 @@
       return true;
     },
   };
+  // Tapping a display-only area makes the controls pulse, here and (when embedded) in the host bar.
+  let lastHint = 0;
+  document.addEventListener('pointerdown', event => {
+    if (event.target.closest?.('button, input, label, a, .draggable')) return;
+    const now = Date.now();
+    if (now - lastHint < 1800) return;
+    lastHint = now;
+    window.searchDemoHint?.(event.clientX, event.clientY);
+  });
   if (!embedded) return;
 
   window.addEventListener('message', event => {

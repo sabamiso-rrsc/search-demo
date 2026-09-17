@@ -5,22 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="同じ迷路をBFSとDFSが同時に探索する比較デモ" />
     <title>BFS・DFS 同時比較</title>
+    <link rel="stylesheet" href="../search-demo/controls.css" />
     <link rel="stylesheet" href="compare.css" />
   </head>
   <body>
     <main class="app">
-      <header class="topbar">
-        <div class="controls">
-          <label for="speed">
-            <span>速度</span>
-            <input id="speed" type="range" min="1" max="5" value="3" />
-            <strong id="speed-label">ふつう</strong>
-          </label>
-          <button id="new-maze" type="button">新しい迷路</button>
-        </div>
-      </header>
-
       <div class="color-guide" aria-label="両方の迷路に共通する色の説明">
+        <span class="guide-title">色の見かた</span>
         <div class="shared-order" aria-label="探索候補は赤を先に、白を後で探索します">
           <span>赤・先に探索</span><span>白・後で探索</span>
           <i aria-hidden="true"></i>
@@ -76,6 +67,15 @@
         </section>
       </div>
 
+      <!-- Watching the boards: slow down or try another maze right below them. -->
+      <div class="playback">
+        <label class="speed" for="speed">
+          <span>速度</span>
+          <input id="speed" type="range" min="1" max="5" value="3" />
+          <strong id="speed-label">ふつう</strong>
+        </label>
+        <button id="new-maze" class="ctl" type="button">新しい迷路にする</button>
+      </div>
     </main>
 
     <script src="../search-demo/bridge.js"></script>

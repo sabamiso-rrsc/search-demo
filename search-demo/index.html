@@ -5,22 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="迷路とハノイの塔で、幅優先探索・深さ優先探索の動きを見比べる自動デモ" />
     <title>探索アルゴリズム | 迷路・ハノイの塔</title>
-    <meta name="theme-color" content="#030a13" />
+    <meta name="theme-color" content="#ffffff" />
     <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="controls.css" />
     <link rel="stylesheet" href="style.css" />
     <script src="script.js" defer></script>
   </head>
   <body>
     <header class="site-header">
-      <nav aria-label="デモの切り替え">
+      <nav class="segmented" aria-label="デモの切り替え">
         <button type="button" data-demo="maze" aria-pressed="true" aria-controls="demo-stage">迷路</button>
         <button type="button" data-demo="hanoi" aria-pressed="false" aria-controls="demo-stage">ハノイの塔</button>
       </nav>
-      <label class="auto-switch" title="迷路1回、ハノイのBFS・DFSが終わるごとに切り替えます">
-        <input id="auto-switch" type="checkbox" checked />
-        <span>自動切替</span>
-      </label>
-      <button id="fullscreen" type="button" aria-label="全画面表示" aria-pressed="false">全画面 <kbd>F</kbd></button>
+      <!-- Staff settings: small and plain so visitors are not drawn to them. -->
+      <div class="staff">
+        <label class="auto-switch" title="迷路1回、ハノイのBFS・DFSが終わるごとに切り替えます">
+          <input id="auto-switch" type="checkbox" role="switch" checked />
+          <span>自動切替</span>
+        </label>
+        <button id="fullscreen" type="button" aria-label="全画面表示" aria-pressed="false">全画面 <kbd>F</kbd></button>
+      </div>
     </header>
     <main id="demo-stage" aria-label="探索デモ"></main>
     <noscript>JavaScriptを有効にしてください。<a href="../maze-search/compare.html">迷路</a>・<a href="../hanoi-search/index.html">ハノイの塔</a></noscript>

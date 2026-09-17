@@ -210,7 +210,7 @@ function drawBoard(name) {
   const pathKeys = new Set(search.path.map(keyOf));
 
   ctx.clearRect(0, 0, width, height);
-  ctx.fillStyle = '#06111d';
+  ctx.fillStyle = cssColor('--board');
   ctx.fillRect(0, 0, width, height);
 
   for (let y = 0; y < ROWS; y++) {
@@ -252,7 +252,7 @@ function drawBoard(name) {
   if (search.current && !search.finished) {
     const px = search.current.x * cellSize;
     const py = search.current.y * cellSize;
-    ctx.fillStyle = cssColor('--cyan');
+    ctx.fillStyle = cssColor('--current');
     ctx.fillRect(px + 2, py + 2, cellSize - 4, cellSize - 4);
     ctx.fillStyle = '#03101b';
     ctx.beginPath();

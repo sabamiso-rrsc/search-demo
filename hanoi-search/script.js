@@ -1,9 +1,11 @@
 const DISK_COUNT = 4;
 const GOAL_STATE = Array(DISK_COUNT).fill(2);
 const RESULT_HOLD = 4800;
+// After a visitor lets go of the tree, give them time before moving on.
+const INTERACTION_HOLD = 8000;
 const REPLAY_START_HOLD = 1500;
 const PEG_NAMES = ['左', '中央', '右'];
-const DISK_COLORS = ['#ffe45c', '#42f59b', '#29d9ff', '#d76cff'];
+const DISK_COLORS = ['#ffe45c', '#42f59b', '#ff7ab6', '#b58cff'];
 
 const ui = {
   algorithmButtons: [...document.querySelectorAll('[data-algorithm]')],
@@ -20,6 +22,9 @@ const ui = {
   viewSolution: document.querySelector('#view-solution'),
   countdownLabel: document.querySelector('#countdown-label'),
   countdown: document.querySelector('#countdown'),
+  holdLabel: document.querySelector('#hold-label'),
+  treeStage: document.querySelector('.tree-stage'),
+  dragHint: document.querySelector('#drag-hint'),
   visitedCount: document.querySelector('#visited-count'),
   frontierCount: document.querySelector('#frontier-count'),
   pathCount: document.querySelector('#path-count'),
@@ -91,7 +96,9 @@ class HanoiDemoController {
     this.startState = randomStartState();
     this.countdownTimer = null;
     this.replaying = false;
+    this.drag = null;
     this.camera = {
+      manual: false,
       x: 0,
       y: 0,
       targetX: 0,
@@ -122,6 +129,10 @@ class HanoiDemoController {
     });
     ui.restart.addEventListener('click', () => this.begin(this.algorithm, 260));
     ui.viewSolution.addEventListener('click', () => this.replaySolution());
+    ui.treeStage.addEventListener('pointerdown', event => this.startDrag(event));
+    ui.treeStage.addEventListener('pointermove', event => this.moveDrag(event));
+    ui.treeStage.addEventListener('pointerup', event => this.endDrag(event));
+    ui.treeStage.addEventListener('pointercancel', event => this.endDrag(event));
   }
 
   start() {
@@ -140,7 +151,14 @@ class HanoiDemoController {
     window.clearInterval(this.countdownTimer);
     this.countdownTimer = null;
     this.replaying = false;
+    this.drag = null;
+    this.camera.manual = false;
     ui.resultActions.hidden = true;
+    ui.treeStage.classList.remove('dragging', 'draggable');
+    ui.dragHint.hidden = true;
+    ui.dragHint.textContent = 'ドラッグでツリーを動かせます';
+    ui.dragHint.classList.remove('suggest');
+    ui.viewSolution.classList.remove('suggested');
     if (this.camera.frame !== null) {
       window.cancelAnimationFrame(this.camera.frame);
       this.camera.frame = null;
@@ -261,6 +279,66 @@ class HanoiDemoController {
     this.startResultCountdown();
   }
 
+  canDrag() {
+    return Boolean(this.search?.finished && !this.replaying);
+  }
+
+  updateDragAvailability() {
+    const available = this.canDrag();
+    ui.treeStage.classList.toggle('draggable', available);
+    ui.dragHint.hidden = !available;
+  }
+
+  startDrag(event) {
+    if (!this.canDrag() || this.drag) return;
+    const rect = ui.tree.getBoundingClientRect();
+    this.drag = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      cameraX: this.camera.x,
+      cameraY: this.camera.y,
+      // The 900x600 viewBox is letterboxed ("meet"), so one pixel is the larger of the two ratios.
+      scale: Math.max(900 / rect.width, 600 / rect.height),
+    };
+    ui.treeStage.classList.add('dragging');
+    if (this.camera.frame !== null) {
+      window.cancelAnimationFrame(this.camera.frame);
+      this.camera.frame = null;
+    }
+    this.camera.manual = true;
+    // Hold the screen while the tree is being handled.
+    this.clearResultTimers();
+    ui.countdownLabel.hidden = true;
+    ui.holdLabel.hidden = false;
+    // Keep receiving moves when the finger leaves the stage; capture can fail for an already released pointer.
+    try { ui.treeStage.setPointerCapture(event.pointerId); } catch {}
+  }
+
+  moveDrag(event) {
+    if (!this.drag || event.pointerId !== this.drag.pointerId) return;
+    const { camera, drag } = this;
+    camera.x = camera.targetX = drag.cameraX - (event.clientX - drag.startX) * drag.scale;
+    camera.y = camera.targetY = drag.cameraY - (event.clientY - drag.startY) * drag.scale;
+    camera.velocityX = 0;
+    camera.velocityY = 0;
+    ui.tree.setAttribute('viewBox', `${camera.x - 450} ${camera.y - 300} 900 600`);
+  }
+
+  endDrag(event) {
+    if (!this.drag || event.pointerId !== this.drag.pointerId) return;
+    this.drag = null;
+    ui.treeStage.classList.remove('dragging');
+    if (!this.canDrag()) return;
+    this.startResultCountdown(INTERACTION_HOLD);
+    // Someone exploring the tree is a good moment to offer the answer replay.
+    if (this.search.found) {
+      ui.viewSolution.classList.add('suggested');
+      ui.dragHint.textContent = '「解答経路を見る」で答えを再生できます';
+      ui.dragHint.classList.add('suggest');
+    }
+  }
+
   clearResultTimers() {
     window.clearTimeout(this.timer);
     window.clearInterval(this.countdownTimer);
@@ -282,22 +360,24 @@ class HanoiDemoController {
     this.begin(next);
   }
 
-  startResultCountdown() {
+  startResultCountdown(hold = RESULT_HOLD) {
     this.clearResultTimers();
+    this.updateDragAvailability();
     ui.resultActions.hidden = false;
+    ui.holdLabel.hidden = true;
     ui.viewSolution.hidden = !this.search.found;
     ui.viewSolution.disabled = false;
     ui.viewSolution.textContent = '解答経路を見る';
     ui.countdownLabel.hidden = false;
 
-    const deadline = performance.now() + RESULT_HOLD;
+    const deadline = performance.now() + hold;
     const updateCountdown = () => {
       const seconds = Math.max(0, Math.ceil((deadline - performance.now()) / 1000));
       ui.countdown.textContent = seconds;
     };
     updateCountdown();
     this.countdownTimer = window.setInterval(updateCountdown, 100);
-    this.timer = window.setTimeout(() => this.advanceAfterResult(), RESULT_HOLD);
+    this.timer = window.setTimeout(() => this.advanceAfterResult(), hold);
   }
 
   replaySolution() {
@@ -305,6 +385,10 @@ class HanoiDemoController {
 
     this.clearResultTimers();
     this.replaying = true;
+    this.camera.manual = false;
+    ui.viewSolution.classList.remove('suggested');
+    this.updateDragAvailability();
+    ui.holdLabel.hidden = true;
     ui.viewSolution.disabled = true;
     ui.viewSolution.textContent = '再生中…';
     ui.countdownLabel.hidden = true;
@@ -375,7 +459,8 @@ class HanoiDemoController {
 
   frontierColor(index, length) {
     const t = length <= 1 ? 0 : index / (length - 1);
-    return `hsl(0 ${100 * (1 - t)}% ${59 + 37 * t}%)`;
+    // Keep full saturation so late candidates fade to pale pink instead of gray on the white board.
+    return `hsl(0 100% ${60 + 38 * t}%)`;
   }
 
   allocateY(depth, desiredY) {
@@ -400,6 +485,7 @@ class HanoiDemoController {
   }
 
   followCurrent(node) {
+    if (this.camera.manual) return;
     const backwardBias = Math.min(165, node.depth * 13);
     this.camera.targetX = node.x - backwardBias;
     this.camera.targetY = node.y;
@@ -479,7 +565,7 @@ class HanoiDemoController {
         ? null
         : frontierColors.get(node.id);
       const candidateStyle = candidateColor
-        ? ` style="stroke:${candidateColor};fill:${candidateColor};fill-opacity:0.42"`
+        ? ` style="fill:${candidateColor}"`
         : '';
       const currentLabel = this.replaying ? '経路' : '探索中';
       const showCurrent = node.id === this.search.currentId && (!this.search.finished || this.replaying);

@@ -1,0 +1,130 @@
+/* Shared look for everything a visitor can touch. Only these elements use the accent color. */
+:root {
+  --accent: #ff8a3d;
+  --accent-soft: #fff1e6;
+  --accent-ink: #7a3a0c;
+  --current: #ffd84a;
+  --board: #13233a;
+  --board-text: #f5fbff;
+  --board-muted: #a8bfd3;
+}
+
+/* Switches between views: one pill, the chosen side is filled. */
+.segmented {
+  display: inline-flex;
+  padding: 4px;
+  border: 2px solid var(--accent);
+  border-radius: 999px;
+  background: #ffffff;
+}
+.segmented button {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 22px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--accent-ink);
+  font: inherit;
+  font-weight: 800;
+  white-space: nowrap;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.segmented button:hover { background: var(--accent-soft); }
+.segmented button[aria-pressed="true"] { background: var(--accent); color: #ffffff; cursor: default; }
+.segmented small { font-size: 0.72em; font-weight: 700; opacity: 0.85; }
+
+/* One-shot actions. */
+.ctl {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 20px;
+  border: 2px solid var(--accent);
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--accent-ink);
+  font: inherit;
+  font-weight: 800;
+  white-space: nowrap;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.ctl:hover { background: var(--accent-soft); }
+.ctl:disabled { cursor: default; opacity: 0.5; }
+
+/* Speed slider: no frame, the big knob is the affordance. */
+.speed {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--accent-ink);
+  font-size: 0.8rem;
+  font-weight: 800;
+  white-space: nowrap;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.speed strong { min-width: 4em; font-weight: 800; }
+.speed input {
+  appearance: none;
+  width: clamp(110px, 12vw, 180px);
+  height: 32px;
+  margin: 0;
+  border-radius: 16px;
+  background: transparent;
+  cursor: pointer;
+}
+.speed input::-webkit-slider-runnable-track { height: 8px; border-radius: 4px; background: #f3dcc8; }
+.speed input::-moz-range-track { height: 8px; border-radius: 4px; background: #f3dcc8; }
+.speed input::-webkit-slider-thumb {
+  appearance: none;
+  width: 26px;
+  height: 26px;
+  margin-top: -9px;
+  border: 3px solid #ffffff;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 1px 4px rgba(122, 58, 12, 0.35);
+}
+.speed input::-moz-range-thumb { width: 20px; height: 20px; border: 3px solid #ffffff; border-radius: 50%; background: var(--accent); box-shadow: 0 1px 4px rgba(122, 58, 12, 0.35); }
+
+.segmented button:focus-visible, .ctl:focus-visible, .speed input:focus-visible { outline: 3px solid #1f2a37; outline-offset: 3px; }
+
+/* Tapping something that only displays information makes the controls blink. */
+.tap-hint .segmented, .tap-hint .ctl, .tap-hint .speed input { animation: ctl-pulse 0.45s ease-in-out 3; }
+@keyframes ctl-pulse {
+  50% { box-shadow: 0 0 0 6px rgba(255, 138, 61, 0.45); }
+}
+.tap-toast {
+  position: fixed;
+  z-index: 50;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgba(31, 42, 55, 0.94);
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 800;
+  white-space: nowrap;
+  pointer-events: none;
+  transform: translate(-50%, calc(-100% - 14px));
+  animation: toast 1.8s ease forwards;
+}
+@keyframes toast {
+  0% { opacity: 0; }
+  10%, 75% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tap-hint .segmented, .tap-hint .ctl, .tap-hint .speed input { animation: none; outline: 3px solid var(--accent); }
+}

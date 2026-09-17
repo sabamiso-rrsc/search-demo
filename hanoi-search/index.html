@@ -5,25 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="ハノイの塔を探索木と一緒に可視化するBFS・DFSデモ" />
     <title>ハノイの塔 | BFS・DFS探索</title>
+    <link rel="stylesheet" href="../search-demo/controls.css" />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <main class="app">
-      <header class="topbar">
-        <div class="controls">
-          <label for="speed"><span>速度</span><input id="speed" type="range" min="1" max="5" value="3" /><strong id="speed-label">ふつう</strong></label>
-          <button id="restart" type="button">最初から</button>
-        </div>
-      </header>
-
       <div class="workspace">
         <section class="tower-panel" aria-labelledby="algorithm-title">
           <header class="section-heading">
             <div>
               <h1 id="algorithm-title" class="sr-only">BFS <span>幅優先探索</span></h1>
-              <div class="algorithm-switch" role="group" aria-label="探索アルゴリズム">
-                <button class="algorithm-button active" type="button" data-algorithm="bfs" aria-pressed="true"><strong>BFS</strong><span>幅優先探索</span></button>
-                <button class="algorithm-button" type="button" data-algorithm="dfs" aria-pressed="false"><strong>DFS</strong><span>深さ優先探索</span></button>
+              <!-- Choosing which search to watch belongs with its title. -->
+              <div class="segmented" role="group" aria-label="探索アルゴリズム">
+                <button type="button" data-algorithm="bfs" aria-pressed="true">BFS <small>幅優先探索</small></button>
+                <button type="button" data-algorithm="dfs" aria-pressed="false">DFS <small>深さ優先探索</small></button>
               </div>
               <p id="algorithm-copy">浅い手順から順に調べる</p>
             </div>
@@ -52,9 +47,15 @@
               <span class="solution-length">解答 <strong id="path-count">—</strong></span>
             </div>
             <div class="result-actions" id="result-actions" hidden>
-              <button id="view-solution" type="button">解答経路を見る</button>
+              <button id="view-solution" class="ctl" type="button">解答経路を見る</button>
               <span id="countdown-label"><strong id="countdown">5</strong>秒後に次へ</span>
+              <span id="hold-label" hidden>さわっている間は次へ進みません</span>
             </div>
+          </div>
+
+          <div class="playback">
+            <label class="speed" for="speed"><span>速度</span><input id="speed" type="range" min="1" max="5" value="3" /><strong id="speed-label">ふつう</strong></label>
+            <button id="restart" class="ctl" type="button">最初から探索</button>
           </div>
         </section>
 
@@ -79,13 +80,16 @@
               <g id="tree-edges"></g>
               <g id="tree-nodes"></g>
             </svg>
+            <span class="drag-hint" id="drag-hint" hidden>ドラッグでツリーを動かせます</span>
           </div>
 
           <div class="color-guide" aria-label="探索ツリーの色の説明">
-            <div class="frontier-key" aria-label="探索候補は赤を先に、白を後で探索します">
+            <span class="guide-title">色の見かた</span>
+            <div class="frontier-key" aria-label="点線の枠は探索候補で、赤を先に、白を後で探索します">
               <span>赤・先に探索</span><span>白・後で探索</span><i aria-hidden="true"></i>
             </div>
             <div class="tree-legend">
+              <span><i class="frontier"></i>候補</span>
               <span><i class="current"></i>現在地</span>
               <span><i class="visited"></i>探索済み</span>
               <span><i class="path"></i>解答経路</span>
